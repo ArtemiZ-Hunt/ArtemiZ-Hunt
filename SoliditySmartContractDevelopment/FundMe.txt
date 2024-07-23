@@ -1,0 +1,92 @@
+//Get fund from users
+//Withdraw funds
+//Set a minimum funding value in USD
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import {PriceConverter} from "./PriceConverter.sol";
+
+//constant, immutable
+
+error NotOwner();
+
+contract FundMe{
+    using PriceConverter for uint256;
+    //uint256 public myValue = 1;
+
+    uint256 public constant MINIMUM_USD = 5e18;
+
+    address[] public funders;
+    mapping(address funder => uint256 amountFunded) public AddressToAmountFunded;
+
+    address public immutable i_owner;
+
+    constructor() {
+        i_owner = msg.sender;
+    }
+
+    function fund() public payable{
+        msg.value.getConversionRate();
+        //Allow users to send money
+        // Have a minimum money sent
+        //1. How do we send ETH to this contract?
+        //myValue = myValue + 2;
+
+        require(msg.value.getConversionRate() >= MINIMUM_USD, "didn't send enough ETH"); //1e18 = 1 ETH = 10000000000000000000 wei = 1 * 10 * 18 
+        // a ton of camputation
+
+        funders.push(msg.sender);    
+        AddressToAmountFunded[msg.sender] = AddressToAmountFunded[msg.sender] + msg.value;
+    }
+
+    //what is a revert
+    //undo actions that have been done, and send the remaining gas back
+
+    function withdraw() onlyOwner public{
+
+        //for loop
+        // [0, 1, 2, 3]
+
+        for(uint funderIndex = 0; funderIndex < funders.length; funderIndex++){
+            address funder = funders[funderIndex];
+            AddressToAmountFunded[funder] = 0;
+        }
+
+        funders = new address[](0);
+
+        //WITHDRAW THE FUNDS
+
+        //transfer
+        payable(msg.sender).transfer(address(this).balance);
+        //send
+        bool sendSuccess = payable(msg.sender).send(address(this).balance);
+        require(sendSuccess, "Send failed");
+        //call
+        (bool callSuccess,) = payable(msg.sender).call{value: address(this).balance}("");
+
+        require(callSuccess, "Call failed");
+
+        //msg.sender = address
+        //payable(msg.sender) = payable address
+    }
+
+    modifier onlyOwner(){
+        //require(msg.sender == i_owner, "Sender is not owner!");
+        if(msg.sender != i_owner) {revert NotOwner();}
+        _;
+    }
+
+    // What happens if someone sends this contract ETH witout calling the fund function?
+    // receive()
+    // fallback()
+
+    receive() external payable{
+        fund();
+    }
+
+    fallback()  external payable{
+        fund();
+    } 
+
+}

@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+contract FallbackExample{
+    uint256 public result;
+
+    //receive function is being triggered when money is send directly to the smart contract without clicking a button, which triggers function
+    receive() external payable{
+        result = 1;
+    }
+
+    //fallback is being triggered when we call a function that does not exist
+    fallback() external payable{
+        result = 2;
+    }
+}

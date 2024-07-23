@@ -1,0 +1,73 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24; //stating our version
+
+contract SimpleStorage {
+
+    //Deploy the contract again if you make changes in order for the changes to be visible
+    //make the variable public to be displayed on the contract when function is executed
+    //Basic Types: boolean, uint, int, address, bytes
+
+    uint256 myFavoriteNumber; //0
+
+    //uint256[] listOfFavoriteNumbers; 
+    
+    struct Person{
+        uint256 favoriteNumber;
+        string name;
+    }
+
+    // Person myFriend = Person(7, "Pat");
+    // Person public myFriend2 = Person({favoriteNumber: 57, name: "5Pat"});
+
+    //dynamic array
+    Person[] public People;
+
+    //static array
+    //Person[3] public People2;
+
+    // 0.  1.  2.
+    //[77, 78, 90]
+
+    //chelsea -> 232
+    mapping(string => uint256) public nameToFavoriteNumber;
+
+
+    //In order for a function to be overriden it should be virtual first
+    
+    function store(uint256 _favoriteNumber) public virtual{
+        myFavoriteNumber = _favoriteNumber;
+        myFavoriteNumber = myFavoriteNumber;
+
+        //uint256 testVar = 5;
+    }
+
+    // as this function is a VIEW function the state of the function cannnot be modified in this function
+    //VIEW functions are the same as a variable being public
+    //Calling a VIEW function does not incur any gas cost (no transaction needed) when called externally 
+    //but if it is called internally by another function that modifies state, the cost is the same as for any other function call.
+    //PURE functions cannot neither modify the state of the varible nor read it
+    function retrive() public view returns(uint256){
+        return myFavoriteNumber;
+    }
+
+    function something() public {
+        //testVar = 6; // out of scope
+        myFavoriteNumber = 7; //in scope
+    }
+
+
+    //Some special types (string(byte[]), array, struct) need calldata/memory/storage to be specified
+    //calldata - temporary variable that canot be changed
+    //memory - temporary variable that can be changed
+    //storage = permanent variable that can be changed
+    function addPerson(string memory _name, uint256 _favoriteNumber) public{
+        //Person memory newPerson = Person(_favoriteNumber, _name);
+        People.push(Person(_favoriteNumber, _name));
+        nameToFavoriteNumber[_name] = _favoriteNumber;
+    }
+}
+
+contract SimpleStorage2 {}
+contract SimpleStorage3 {}
+contract SimpleStorage4 {}
+contract SimpleStorage5 {}
